@@ -1,7 +1,17 @@
 {% extends 'flatpages/default.html' %}
+{% load static %}
 {% load my_filters %}
 
 {% block content %}
+
+    <style>
+    header {
+      background-image: url('{% static 'news/images/header.jpg' %}');
+      background-size: cover;
+      background-position: center;
+    }
+  </style>
+
     <h2>Все новости ({{ posts|length }})</h2>
     <ul>
         {% for post in posts %}

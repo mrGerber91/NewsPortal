@@ -1,4 +1,5 @@
 {% load static %}
+{% load custom_tags %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -11,7 +12,11 @@
 </head>
 <body>
     <header>
-        <h1 class="white-text">{% block header %}Портал Новостей{% endblock %}</h1>
+        <h1>
+            {% block header %}Портал Новостей{% endblock %}
+            <div id="real-time">{{ real_time|date:"F j, Y H:i:s" }}</div>
+        </h1>
+
     </header>
 
     <nav>
@@ -28,5 +33,23 @@
     <footer>
        <p>© 2024 Проект создал: <a href="https://github.com/mrGerber91">mrGerber91</a></p>
     </footer>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Функция для обновления времени
+            function updateRealTime() {
+                // Получаем текущее время с помощью Django-шаблонного тега
+                var currentTime = '{% get_real_time %}';
+
+                // Отображаем время в элементе на странице
+                document.getElementById('real-time').textContent = '' + currentTime;
+            }
+
+            // Обновляем время каждую секунду
+            setInterval(updateRealTime, 1000);
+
+            // Вызываем функцию обновления времени в начале
+            updateRealTime();
+        });
+    </script>
 </body>
 </html>

@@ -2,22 +2,23 @@ body {
     font-family: 'Arial', sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #f8f8f8; /* Цвет заднего фона в виде газеты */
+    background-color: #f8f8f8;
 }
 
 header {
-    background-color: #333;
-    color: white;
-    padding: 10px;
     text-align: center;
+    background-image: url('../news/images/header.jpg');
+    background-size: cover;
+    background-position: center;
+    height: 200px;
 }
 
 nav {
     background-color: #555;
-    color: white;
+    color: #ffffff;
     padding: 10px;
-    border-top: 2px solid #333; /* Рамка сверху */
-    border-bottom: 2px solid #333; /* Рамка снизу */
+    border-top: 2px solid #c7c7c7;
+    border-bottom: 2px solid #cccccc;
 }
 
 nav ul {
@@ -33,15 +34,15 @@ nav li {
 }
 
 nav a {
-    color: white;
+    color: #f6f5f5;
     text-decoration: none;
     padding: 5px 10px;
-    border: 1px solid #333; /* Рамка вокруг ссылок в меню */
-    background-color: #666; /* Цвет фона ссылок в меню */
+    border: 1px solid #cccccc;
+    background-color: #666;
 }
 
 nav a:hover {
-    background-color: #444; /* Цвет фона при наведении на ссылку в меню */
+    background-color: #444;
 }
 
 main {
@@ -59,12 +60,18 @@ article {
     margin-bottom: 20px;
 }
 
-h1, h2, h3 {
-    color: rgba(0, 0, 0, 0.79);
+h1 {
+    color: rgba(0, 0, 0, 0.99);
+    background-color: rgba(202, 199, 195, 0.82);
+    display: inline-block;
+}
+
+h2, h3 {
+    color: rgba(0, 0, 0, 1);
 }
 
 a {
-    color: #0066cc;
+    color: #0369c8;
     text-decoration: none;
 }
 
@@ -73,5 +80,6 @@ a:hover {
 }
 
 .white-text {
-    color: white;
+    color: #ffffff;
 }
+
