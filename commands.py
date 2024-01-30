@@ -51,20 +51,29 @@ author1.update_rating()
 author2.update_rating()
 
 # Вывод имени и рейтинга лучшего пользователя
-best_user = Author.objects.all().order_by('-rating').first()
-print(f"Best User: {best_user.user.username}, Rating: {best_user.rating}")
+best_user_data = Author.objects.order_by('-rating').values('user__username', 'rating').first()
+
+if best_user_data:
+    print(f"Best User: {best_user_data['user__username']}, Rating: {best_user_data['rating']}")
+else:
+    print("No users available.")
 
 # Вывод информации о лучшей статье
-best_post = Post.objects.all().order_by('-rating').first()
-print(f"Date: {best_post.created_at}, Author: {best_post.author.user.username}, Rating: {best_post.rating}")
-print(f"Title: {best_post.title}")
-print(f"Preview: {best_post.preview()}")
+best_post_data = Post.objects.all().order_by('-rating').values('created_at', 'author__user__username', 'rating', 'title').first()
+
+if best_post_data:
+    print(f"Date: {best_post_data['created_at']}")
+    print(f"Author: {best_post_data['author__user__username']}")
+    print(f"Rating: {best_post_data['rating']}")
+    print(f"Title: {best_post_data['title']}")
+else:
+    print("No posts available.")
 
 # Вывод всех комментариев к лучшей статье
-comments = Comment.objects.filter(post=best_post)
-for comment in comments:
-    print(f"Date: {comment.created_at}, User: {comment.user.username}, Rating: {comment.rating}")
-    print(f"Text: {comment.text}")
-
-
-
+comments_for_best_post = Comment.objects.filter(post__title=best_post_data['title'])
+if comments_for_best_post.exists():
+        print(f"\nComments for the Best Post '{best_post_data['title']}':")
+        for comment in comments_for_best_post:
+            print(f"Author: {comment.user.username}")
+            print(f"Content: {comment.text}")
+            print("--------")

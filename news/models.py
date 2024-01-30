@@ -2,15 +2,16 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 
-
+# Модель для автора
 class Author(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)# Один к одному с моделью пользователя Django
     rating = models.IntegerField(default=0)
 
     def __str__(self):
         return self.user.username
 
     def update_rating(self):
+        # Обновление рейтинга автора
         post_rating = sum(post.rating for post in self.post_set.all()) * 3
         comment_rating = sum(comment.rating for comment in Comment.objects.filter(post__author=self))
         post_comment_rating = sum(comment.rating
@@ -20,20 +21,20 @@ class Author(models.Model):
         self.rating = post_rating + comment_rating + post_comment_rating
         self.save()
 
-
+# Модель для категории
 class Category(models.Model):
     name = models.CharField(max_length=255, unique=True)
 
     def __str__(self):
         return self.name
 
-
+# Модель для поста
 class Post(models.Model):
-    author = models.ForeignKey(Author, on_delete=models.CASCADE)
+    author = models.ForeignKey(Author, on_delete=models.CASCADE) # Ссылка на автора
     post_type_choices = [('article', 'Article'), ('news', 'News')]
     post_type = models.CharField(max_length=10, choices=post_type_choices)
     created_at = models.DateTimeField(auto_now_add=True)
-    categories = models.ManyToManyField(Category, through='PostCategory')
+    categories = models.ManyToManyField(Category, through='PostCategory') # Связь многие ко многим с категориями
     title = models.CharField(max_length=255)
     content = models.TextField()
     rating = models.IntegerField(default=0)
@@ -52,15 +53,15 @@ class Post(models.Model):
     def preview(self):
         return f"{self.content[:124]}..."
 
-
+# Промежуточная модель для связи Post и Category
 class PostCategory(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
 
-
+# Модель для комментария
 class Comment(models.Model):
-    post = models.ForeignKey(Post, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    post = models.ForeignKey(Post, on_delete=models.CASCADE)# Ссылка на пост
+    user = models.ForeignKey(User, on_delete=models.CASCADE)# Ссылка на пользователя Django
     text = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     rating = models.IntegerField(default=0)
