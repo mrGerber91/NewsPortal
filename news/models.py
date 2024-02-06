@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
+import django_filters
 
 # Модель для автора
 class Author(models.Model):
@@ -76,3 +77,11 @@ class Comment(models.Model):
     def dislike(self):
         self.rating -= 1
         self.save()
+
+
+class NewsFilter(django_filters.FilterSet):
+    date_from = django_filters.DateFilter(field_name='created_at', lookup_expr='gte', label='From (YYYY-MM-DD)')
+
+    class Meta:
+        model = Post
+        fields = ['title', 'author__user__username']

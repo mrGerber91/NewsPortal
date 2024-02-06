@@ -18,3 +18,5 @@ def censor(value):
         value = re.sub(re.compile(re.escape(word), re.IGNORECASE), '*' * len(word), value)
 
     return value
+
+
