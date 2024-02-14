@@ -7,6 +7,7 @@ from django import forms
 from .forms import PostForm
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
+from .mixins import AuthCheckMixin
 
 
 
@@ -40,7 +41,7 @@ def search_news(request):
 
     news_filter = NewsFilter(request.GET, queryset=Post.objects.all())
 
-    # Проверка наличия поля 'created_at__gte' в форме фильтра
+
     if 'created_at__gte' in news_filter.form.fields:
         news_filter.form.fields['created_at__gte'].widget = DateInput()
 
@@ -60,7 +61,7 @@ def search_news(request):
                   {'posts': posts, 'query': query, 'news_filter': news_filter})
 
 
-class NewsCreateView(CreateView):
+class NewsCreateView(AuthCheckMixin, CreateView):
     model = Post
     form_class = PostForm
     template_name = 'news/news_form.html'
@@ -70,7 +71,7 @@ class NewsCreateView(CreateView):
         form.instance.post_type = 'news'
         return super().form_valid(form)
 
-class NewsUpdateView(UpdateView):
+class NewsUpdateView(AuthCheckMixin, UpdateView):
     model = Post
     template_name = 'news/news_form.html'
     fields = ['title', 'content']
@@ -81,7 +82,7 @@ class NewsUpdateView(UpdateView):
         return super().form_valid(form)
 
 
-class NewsDeleteView(DeleteView):
+class NewsDeleteView(AuthCheckMixin, DeleteView):
     model = Post
     template_name = 'news/news_confirm_delete.html'
     success_url = reverse_lazy('news_list')
@@ -92,7 +93,7 @@ class NewsDeleteView(DeleteView):
 
 
 
-class ArticleCreateView(CreateView):
+class ArticleCreateView(AuthCheckMixin, CreateView):
     model = Post
     form_class = PostForm
     template_name = 'news/article_form.html'
@@ -103,7 +104,7 @@ class ArticleCreateView(CreateView):
         return super().form_valid(form)
 
 
-class ArticleUpdateView(UpdateView):
+class ArticleUpdateView(AuthCheckMixin, UpdateView):
     model = Post
     template_name = 'news/article_form.html'
     fields = ['title', 'content']
@@ -113,7 +114,7 @@ class ArticleUpdateView(UpdateView):
         form.instance.post_type = 'article'
         return super().form_valid(form)
 
-class ArticleDeleteView(DeleteView):
+class ArticleDeleteView(AuthCheckMixin, DeleteView):
     model = Post
     template_name = 'news/article_confirm_delete.html'
     success_url = reverse_lazy('news_list')
