@@ -35,14 +35,24 @@
             </li>
         </ul>
         <div class="navbar-right">
+
             {% if user.is_authenticated %}
-                <!-- Если пользователь аутентифицирован, отобразить кнопку "Выйти" -->
+    <a href="{% url 'admin:index' %}"  class="admin-btn" target="_blank">Админ Панель </a>
+            {% endif %}
+
+        <div id="error-message" class="error-message" style="display: none;">
+    <span class="close-btn">&times;</span>
+    Извините, у вас нет прав администратора.
+        </div>
+
+            {% if user.is_authenticated %}
+
                 <form action="{% url 'logout' %}" method="post">
     {% csrf_token %}
     <button type="submit">Выход</button>
 </form>
             {% else %}
-                <!-- Если пользователь не аутентифицирован, отобразить кнопки "Войти" и "Зарегистрироваться" -->
+
                 <a href="{% url 'login' %}">Войти</a>
                 <a href="{% url 'signup' %}">Зарегистрироваться</a>
             {% endif %}
@@ -53,26 +63,43 @@
         {% block content %}{% endblock %}
     </main>
 
-    <footer>
-       <p>© 2024 Проект создал: <a href="https://github.com/mrGerber91">mrGerber91</a></p>
+   <footer>
+    <p>© 2024 Проект создал: <a href="https://github.com/mrGerber91" target="_blank">mrGerber91</a></p>
     </footer>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // Функция для обновления времени
-            function updateRealTime() {
-                // Получаем текущее время с помощью Django-шаблонного тега
-                var currentTime = '{% get_real_time %}';
 
-                // Отображаем время в элементе на странице
-                document.getElementById('real-time').textContent = '' + currentTime;
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+
+        function showErrorMessage() {
+            const errorMessage = document.getElementById('error-message');
+            errorMessage.style.display = 'block';
+        }
+
+        function closeErrorMessage() {
+            const errorMessage = document.getElementById('error-message');
+            errorMessage.style.display = 'none';
+        }
+
+        document.getElementById('error-message').addEventListener('click', closeErrorMessage);
+
+        const adminBtn = document.querySelector('.admin-btn');
+
+        adminBtn.addEventListener('click', function (event) {
+            if (!{{ user.is_superuser|yesno:"true,false" }}) {
+                showErrorMessage();
+                event.preventDefault();
             }
-
-            // Обновляем время каждую секунду
-            setInterval(updateRealTime, 1000);
-
-            // Вызываем функцию обновления времени в начале
-            updateRealTime();
         });
-    </script>
+    });
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        function updateRealTime() {
+            document.getElementById('real-time').textContent = new Date().toLocaleString();
+        }
+        setInterval(updateRealTime, 1000);
+        updateRealTime();
+    });
+</script>
 </body>
 </html>

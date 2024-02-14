@@ -141,3 +141,24 @@ a:hover {
 .dropdown:hover .dropdown-content {
     display: block;
 }
+
+.error-message {
+    position: fixed;
+    top: 25%;
+    left: 75%;
+    transform: translate(-25%, -75%);
+    background-color: #f44336;
+    color: white;
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    z-index: 9999;
+}
+
+.close-btn {
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    font-size: 20px;
+    cursor: pointer;
+}
