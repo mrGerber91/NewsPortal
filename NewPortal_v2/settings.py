@@ -29,6 +29,7 @@ DEBUG = False
 
 
 ALLOWED_HOSTS = ["*"]
+DJANGO_ALLOWED_HOSTS = ["*"]
 
 # Application definition
 
