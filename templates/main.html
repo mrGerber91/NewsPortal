@@ -50,15 +50,11 @@
         }
     </style>
 </head>
-<body style="background-image: url('/static/sign/images/back2.jpg'); background-size: cover;">
-    <div class="container">
-        <p><a href="{% url 'home' %}" class="button">Вернуться на Главную страницу</a></p>
-        <ul>
-            <li><a href="{% url 'login' %}" class="button">Вход</a></li>
-            <li><a href="{% url 'signup' %}" class="button">Регистрация</a></li>
-        </ul>
+<body>
+        <div>
+            <h1><a href="/news">Главная Страница</a></h1>
+        </div>
         {% block content %}
         {% endblock %}
-    </div>
-</body>
+    </body>
 </html>
