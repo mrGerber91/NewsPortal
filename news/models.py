@@ -11,6 +11,11 @@ class Author(models.Model):
     def __str__(self):
         return self.user.username
 
+    @staticmethod
+    def get_author(user):
+        author, created = Author.objects.get_or_create(user=user)
+        return author
+
     def update_rating(self):
         # Обновление рейтинга автора
         post_rating = sum(post.rating for post in self.post_set.all()) * 3

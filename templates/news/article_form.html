@@ -49,9 +49,11 @@
     <h1>{% block heading %}Создать Статью{% endblock %}</h1>
     <form method="post">
         {% csrf_token %}
+        <input type="hidden" name="author" value="{{ request.user.pk }}">
         {{ form.as_p }}
         <button type="submit">Отправить</button>
     </form>
 </div>
 </body>
 </html>
+

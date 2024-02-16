@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Post
+from .models import Post, Author
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Q
 from .filters import NewsFilter
@@ -8,6 +8,10 @@ from .forms import PostForm
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
 from .mixins import AuthCheckMixin
+from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.contrib.auth.models import Group
+from django.http import HttpResponseForbidden
+from django.views import View
 
 
 
@@ -41,7 +45,6 @@ def search_news(request):
 
     news_filter = NewsFilter(request.GET, queryset=Post.objects.all())
 
-
     if 'created_at__gte' in news_filter.form.fields:
         news_filter.form.fields['created_at__gte'].widget = DateInput()
 
@@ -61,15 +64,20 @@ def search_news(request):
                   {'posts': posts, 'query': query, 'news_filter': news_filter})
 
 
-class NewsCreateView(AuthCheckMixin, CreateView):
+class NewsCreateView(AuthCheckMixin, PermissionRequiredMixin, CreateView):
     model = Post
     form_class = PostForm
     template_name = 'news/news_form.html'
     success_url = reverse_lazy('news_list')
+    permission_required = 'news.add_post'
 
     def form_valid(self, form):
-        form.instance.post_type = 'news'
+        form.instance.post_type = 'article'
+        user = self.request.user
+        author = Author.get_author(user)
+        form.instance.author = author
         return super().form_valid(form)
+
 
 class NewsUpdateView(AuthCheckMixin, UpdateView):
     model = Post
@@ -77,9 +85,7 @@ class NewsUpdateView(AuthCheckMixin, UpdateView):
     fields = ['title', 'content']
     success_url = reverse_lazy('news_list')
 
-    def form_valid(self, form):
-        form.instance.post_type = 'news'
-        return super().form_valid(form)
+
 
 
 class NewsDeleteView(AuthCheckMixin, DeleteView):
@@ -87,20 +93,19 @@ class NewsDeleteView(AuthCheckMixin, DeleteView):
     template_name = 'news/news_confirm_delete.html'
     success_url = reverse_lazy('news_list')
 
-    def form_valid(self, form):
-        form.instance.post_type = 'news'
-        return super().form_valid(form)
 
-
-
-class ArticleCreateView(AuthCheckMixin, CreateView):
+class ArticleCreateView(AuthCheckMixin,PermissionRequiredMixin, CreateView):
     model = Post
     form_class = PostForm
     template_name = 'news/article_form.html'
     success_url = reverse_lazy('news_list')
+    permission_required = 'news.add_post'
 
     def form_valid(self, form):
         form.instance.post_type = 'article'
+        user = self.request.user
+        author = Author.get_author(user)
+        form.instance.author = author
         return super().form_valid(form)
 
 
@@ -110,15 +115,18 @@ class ArticleUpdateView(AuthCheckMixin, UpdateView):
     fields = ['title', 'content']
     success_url = reverse_lazy('news_list')
 
-    def form_valid(self, form):
-        form.instance.post_type = 'article'
-        return super().form_valid(form)
 
 class ArticleDeleteView(AuthCheckMixin, DeleteView):
     model = Post
     template_name = 'news/article_confirm_delete.html'
     success_url = reverse_lazy('news_list')
 
-    def form_valid(self, form):
-        form.instance.post_type = 'article'
-        return super().form_valid(form)
+
+
+class MyView(PermissionRequiredMixin, View):
+    permission_required = ('news.add_post', 'news.add_post')
+
+class AddPost(PermissionRequiredMixin, CreateView):
+    model = Post
+    fields = ['title', 'content']
+    permission_required = 'news.add_post'
