@@ -1,0 +1,13 @@
+{% extends "account/base.html" %}
+
+{% block content %}
+<div class="login-form">
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Log In</button> 
+        <a href="{% url 'login' %}" class="btn btn-primary">Войти с помощью Username</a>
+        
+    </form>
+</div>
+{% endblock %}

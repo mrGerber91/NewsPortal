@@ -121,3 +121,6 @@ class AddPost(PermissionRequiredMixin, CreateView):
     model = Post
     fields = ['title', 'content']
     permission_required = 'news.add_post'
+
+def custom_permission_denied(request, exception):
+    return render(request, 'errors/403.html', status=403)

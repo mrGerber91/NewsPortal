@@ -45,7 +45,7 @@
 <body style="background-image: url('/static/sign/images/back2.jpg'); background-size: cover;">
 
 <div class="container">
-    <h1><a href="/news">Главная Страница</a></h1>
+    <h1><a href="{% url 'home' %}">Главная Страница</a></h1>
     <h1>{% block heading %}Создать Статью{% endblock %}</h1>
     <form method="post">
         {% csrf_token %}
