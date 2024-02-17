@@ -3,13 +3,15 @@ import os
 from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [BASE_DIR / 'static']
 
 SECRET_KEY = 'django-insecure-o+(7^na(9!jwfi9ch6#8%7zfnu-q+1ao^yjp!cw%+whbc*7c2o'
 
 DEBUG = True
 
-ALLOWED_HOSTS = ['2551093-yo82697.twc1.net', '127.0.0.1']
-DJANGO_ALLOWED_HOSTS = ['2551093-yo82697.twc1.net', '127.0.0.1']
+ALLOWED_HOSTS = ['*']
+DJANGO_ALLOWED_HOSTS = ['*']
 
 LOGGING = {
     'version': 1,
@@ -111,8 +113,9 @@ USE_I18N = True
 
 USE_TZ = True
 
-STATIC_URL = '/static/'
-STATICFILES_DIRS = [BASE_DIR / 'static']
+
+CSRF_TRUSTED_ORIGINS = ['https://2555649-yo82697.twc1.net']
+CORS_ALLOWED_ORIGINS = ['https://2555649-yo82697.twc1.net']
 
 SITE_ID = 1
 

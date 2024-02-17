@@ -14,7 +14,6 @@ from django.http import HttpResponseForbidden
 from django.views import View
 
 
-
 def news_list(request):
     posts_list = Post.objects.all().order_by('-created_at')
     paginator = Paginator(posts_list, 10)  # 10 новостей на странице
@@ -64,19 +63,13 @@ def search_news(request):
                   {'posts': posts, 'query': query, 'news_filter': news_filter})
 
 
-class NewsCreateView(AuthCheckMixin, PermissionRequiredMixin, CreateView):
+class NewsCreateView(PermissionRequiredMixin, CreateView):
     model = Post
     form_class = PostForm
     template_name = 'news/news_form.html'
     success_url = reverse_lazy('news_list')
     permission_required = 'news.add_post'
 
-    def form_valid(self, form):
-        form.instance.post_type = 'article'
-        user = self.request.user
-        author = Author.get_author(user)
-        form.instance.author = author
-        return super().form_valid(form)
 
 
 class NewsUpdateView(AuthCheckMixin, UpdateView):
@@ -86,15 +79,13 @@ class NewsUpdateView(AuthCheckMixin, UpdateView):
     success_url = reverse_lazy('news_list')
 
 
-
-
 class NewsDeleteView(AuthCheckMixin, DeleteView):
     model = Post
     template_name = 'news/news_confirm_delete.html'
     success_url = reverse_lazy('news_list')
 
 
-class ArticleCreateView(AuthCheckMixin,PermissionRequiredMixin, CreateView):
+class ArticleCreateView(PermissionRequiredMixin, CreateView):
     model = Post
     form_class = PostForm
     template_name = 'news/article_form.html'
@@ -122,9 +113,9 @@ class ArticleDeleteView(AuthCheckMixin, DeleteView):
     success_url = reverse_lazy('news_list')
 
 
-
 class MyView(PermissionRequiredMixin, View):
-    permission_required = ('news.add_post', 'news.add_post')
+    permission_required = 'news.add_post'
+
 
 class AddPost(PermissionRequiredMixin, CreateView):
     model = Post

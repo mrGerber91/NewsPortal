@@ -90,3 +90,12 @@ class NewsFilter(django_filters.FilterSet):
     class Meta:
         model = Post
         fields = ['title', 'author__user__username']
+
+class MyPermissions(models.Model):
+    class Meta:
+        managed = False  # Не управляемая модель
+        default_permissions = ()  # Отключаем стандартные разрешения
+        permissions = (
+            ('add_post', 'Can add post'),
+            ('change_post', 'Can change post'),
+        )

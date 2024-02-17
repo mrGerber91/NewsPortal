@@ -9,7 +9,7 @@ class AuthCheckMixin(LoginRequiredMixin):
     def handle_no_permission(self):
         # Если пользователь аутентифицирован, перенаправляем его на главную страницу
         if self.request.user.is_authenticated:
-            return HttpResponseRedirect(reverse_lazy('home'))
+            return HttpResponseRedirect(reverse_lazy('news_list'))
         # Если пользователь не аутентифицирован, перенаправляем его на страницу входа или регистрации
         else:
             return HttpResponseRedirect(self.login_url)
