@@ -5,8 +5,9 @@
     <form method="post">
         {% csrf_token %}
         {{ form.as_p }}
-        <button type="submit">Log In</button> 
+        <button type="submit" class="btn btn-primary">Log In</button> 
         <a href="{% url 'login' %}" class="btn btn-primary">Войти с помощью Username</a>
+        <a href="{% url 'account_signup' %}" class="btn btn-primary">Зарегистрироваться</a>
     </form>
 </div>
 {% endblock %}
