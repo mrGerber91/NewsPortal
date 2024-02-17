@@ -5,6 +5,7 @@ from django.conf.urls import handler403
 from django.views.generic import TemplateView
 
 
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('news.urls')),
@@ -17,8 +18,6 @@ urlpatterns = [
     path('accounts/signup/', SignupView.as_view(), name='account_signup'),
 
     path('1/', TemplateView.as_view(template_name='flatpages/home.html'), name='home'),
-
-
 ]
 
 handler403 = 'news.views.custom_permission_denied'
