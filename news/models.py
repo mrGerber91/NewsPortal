@@ -3,9 +3,10 @@ from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 import django_filters
 
+
 # Модель для автора
 class Author(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)# Один к одному с моделью пользователя Django
+    user = models.OneToOneField(User, on_delete=models.CASCADE)  # Один к одному с моделью пользователя Django
     rating = models.IntegerField(default=0)
 
     def __str__(self):
@@ -27,20 +28,27 @@ class Author(models.Model):
         self.rating = post_rating + comment_rating + post_comment_rating
         self.save()
 
+
 # Модель для категории
 class Category(models.Model):
-    name = models.CharField(max_length=255, unique=True)
+    name = models.CharField(max_length=255)
+    subscribers = models.ManyToManyField(User, through='Subscriber')
 
     def __str__(self):
         return self.name
 
+    def subscribe_to_category(request, category_id):
+        # Ваша логика подписки на категорию здесь
+        return redirect('category_news', category_id=category_id)
+
+
 # Модель для поста
 class Post(models.Model):
-    author = models.ForeignKey(Author, on_delete=models.CASCADE) # Ссылка на автора
+    author = models.ForeignKey(Author, on_delete=models.CASCADE)  # Ссылка на автора
     post_type_choices = [('article', 'Article'), ('news', 'News')]
     post_type = models.CharField(max_length=10, choices=post_type_choices)
     created_at = models.DateTimeField(auto_now_add=True)
-    categories = models.ManyToManyField(Category, through='PostCategory') # Связь многие ко многим с категориями
+    categories = models.ManyToManyField(Category, through='PostCategory')  # Связь многие ко многим с категориями
     title = models.CharField(max_length=255)
     content = models.TextField()
     rating = models.IntegerField(default=0)
@@ -59,15 +67,17 @@ class Post(models.Model):
     def preview(self):
         return f"{self.content[:124]}..."
 
+
 # Промежуточная модель для связи Post и Category
 class PostCategory(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
 
+
 # Модель для комментария
 class Comment(models.Model):
-    post = models.ForeignKey(Post, on_delete=models.CASCADE)# Ссылка на пост
-    user = models.ForeignKey(User, on_delete=models.CASCADE)# Ссылка на пользователя Django
+    post = models.ForeignKey(Post, on_delete=models.CASCADE)  # Ссылка на пост
+    user = models.ForeignKey(User, on_delete=models.CASCADE)  # Ссылка на пользователя Django
     text = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     rating = models.IntegerField(default=0)
@@ -91,6 +101,7 @@ class NewsFilter(django_filters.FilterSet):
         model = Post
         fields = ['title', 'author__user__username']
 
+
 class MyPermissions(models.Model):
     class Meta:
         managed = False  # Не управляемая модель
@@ -99,3 +110,11 @@ class MyPermissions(models.Model):
             ('add_post', 'Can add post'),
             ('change_post', 'Can change post'),
         )
+
+
+class Subscriber(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.user.username} subscribed to {self.category.name}"

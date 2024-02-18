@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Request Permission</title>
+</head>
+<body>
+    <h1>Request Permission</h1>
+    <p>Dear User, you do not have the necessary permission to create articles. If you believe you should have this permission, please submit a request below:</p>
+    
+    <form method="post" action="{% url 'request_permission' %}">
+        {% csrf_token %}
+        <label for="request_reason">Reason for Request:</label><br>
+        <textarea id="request_reason" name="request_reason" rows="4" cols="50"></textarea><br>
+        <button type="submit">Submit Request</button>
+    </form>
+</body>
+</html>
