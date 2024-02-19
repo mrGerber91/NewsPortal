@@ -1,13 +1,11 @@
 {% load static %}
-{% load socialaccount %}
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple SignUp/SignIn app</title>
+    <title>403 Forbidden</title>
     <style>
         body {
             display: flex;
@@ -33,15 +31,28 @@
 </head>
 <body style="background-image: url('/static/sign/images/back2.jpg'); background-size: cover;">
     <div class="container">
-        <div>
-            <h1><a href="{% url 'home' %}">Главная Страница</a></h1>
-            <a href="{% provider_login_url 'google' %}">
-                <img src="{% static 'sign/images/google_icon.png' %}" alt="Google" 
-                     style="width: 50px; height: 50px;">
-            </a>
-        </div>
-        {% block content %}
-        {% endblock %}
-    </div>
+        <h1>403 Forbidden</h1>
+        <p>Вы создали максимально разрешенное количество постов за 1 день.</p>
+        <p>Чтобы увеличить это количество, обратитесь к администратору.</p>
+    
+
+    <p id="countdown">Вы будете перенаправлены обратно через <span id="seconds">5</span> секунд</p>
+    <script>
+        var secondsLeft = 5;
+        var countdownElement = document.getElementById('seconds');
+
+        function countdown() {
+            if (secondsLeft === 0) {
+                window.location.href = "{% url 'news_list' %}";
+            } else {
+                countdownElement.textContent = secondsLeft;
+                secondsLeft--;
+                setTimeout(countdown, 1000);
+            }
+        }
+
+        countdown();
+    </script>
+</div>
 </body>
 </html>

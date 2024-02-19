@@ -4,6 +4,8 @@ from .views import NewsCreateView, NewsUpdateView, NewsDeleteView
 from .views import ArticleCreateView, ArticleUpdateView, ArticleDeleteView
 from . import views
 
+handler403 = 'news.views.daily_post_limit_exceeded'
+
 urlpatterns = [
     path('news/', news_list, name='news_list'),
     path('search/', search_news, name='search_news'),
@@ -21,6 +23,10 @@ urlpatterns = [
 
     path('subscribe/<int:category_id>/', subscribe_to_category, name='subscribe_to_category'),
     path('category/<int:category_id>/', views.category_news, name='category_news'),
+
+    path('daily_post_limit_exceeded/',
+         views.daily_post_limit_exceeded,
+         name='daily_post_limit_exceeded'),
 
 
 ]

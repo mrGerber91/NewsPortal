@@ -4,6 +4,10 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.core.validators import EmailValidator
 from django import forms
+from django.utils.crypto import get_random_string
+from django.db import models
+from django.dispatch import receiver
+from allauth.account.signals import user_signed_up
 
 class BaseRegisterForm(UserCreationForm):
     email = forms.EmailField(label="Email")
@@ -27,4 +31,6 @@ class BasicSignupForm(SignupForm):
         common_group = Group.objects.get(name='common')
         common_group.user_set.add(user)
         return user
+
+
 

@@ -35,15 +35,12 @@
       {% endif %}
     {% endif %}
     
-    {% if user.is_authenticated %}
-      {% if is_subscribed %}
-        <!-- Пользователь подписан, не показываем кнопку -->
-      {% else %}
+  
+      {% if  not is_subscribed %}
         <form action="{% url 'subscribe_to_category' category.id %}" method="post">
           {% csrf_token %}
           <button type="submit">Подписаться на категорию</button>
         </form>
+            {% else %}
       {% endif %}
-    {% endif %}
-  </p>
 {% endblock %}

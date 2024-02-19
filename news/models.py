@@ -2,7 +2,15 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 import django_filters
+from django.utils import timezone
 
+class UserDailyRecord(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    date = models.DateField(default=timezone.now)
+    post_count = models.IntegerField(default=0)
+
+    class Meta:
+        unique_together = ('user', 'date')
 
 # Модель для автора
 class Author(models.Model):

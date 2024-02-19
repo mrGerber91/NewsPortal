@@ -10,12 +10,33 @@ from django.urls import reverse_lazy
 from .mixins import AuthCheckMixin
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.auth.models import Group
-from django.http import HttpResponseForbidden
+from django.http import HttpResponseForbidden, HttpResponse
 from django.views import View
 from django.core.mail import send_mail
 from .models import Category
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
+from .models import Subscriber
+from .models import UserDailyRecord
+from functools import wraps
+from .models import Post
+from django.utils import timezone
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.exceptions import PermissionDenied
+from .exceptions import DailyPostLimitExceeded
+
+def daily_post_limit_exceeded(request, exception=None):
+    return render(request, 'errors/403_2.html', status=403)
+
+@login_required
+def increment_post_count(request):
+    user = request.user
+    today = timezone.now().date()
+    record, created = UserDailyRecord.objects.get_or_create(user=user, date=today)
+    if record.post_count >= 3:
+        raise DailyPostLimitExceeded("Вы уже создали максимальное количество записей за сегодня.")
+    record.post_count += 1
+    record.save()
 
 
 def news_list(request):
@@ -77,8 +98,14 @@ class NewsCreateView(PermissionRequiredMixin, CreateView):
     permission_required = 'news.add_post'
 
     def form_valid(self, form):
-        form.instance.post_type = 'news'
+        # Проверяем, сколько постов пользователь уже создал сегодня
         user = self.request.user
+        today = timezone.now().date()
+        post_count = UserDailyRecord.objects.filter(user=user, date=today).values_list('post_count', flat=True).first()
+        if post_count is not None and post_count >= 3:
+            return redirect('daily_post_limit_exceeded')
+
+        form.instance.post_type = 'news'
         author = Author.get_author(user)
         form.instance.author = author
         post = form.save()
@@ -97,7 +124,7 @@ class NewsCreateView(PermissionRequiredMixin, CreateView):
                     [subscriber.email],
                     html_message=html_message
                 )
-
+        increment_post_count(self.request)
         return super().form_valid(form)
 
 
@@ -113,7 +140,6 @@ class NewsDeleteView(AuthCheckMixin, DeleteView):
     template_name = 'news/news_confirm_delete.html'
     success_url = reverse_lazy('news_list')
 
-
 class ArticleCreateView(PermissionRequiredMixin, CreateView):
     model = Post
     form_class = PostForm
@@ -122,8 +148,14 @@ class ArticleCreateView(PermissionRequiredMixin, CreateView):
     permission_required = 'news.add_post'
 
     def form_valid(self, form):
-        form.instance.post_type = 'article'
+        # Проверяем, сколько постов пользователь уже создал сегодня
         user = self.request.user
+        today = timezone.now().date()
+        post_count = UserDailyRecord.objects.filter(user=user, date=today).values_list('post_count', flat=True).first()
+        if post_count is not None and post_count >= 3:
+            return redirect('daily_post_limit_exceeded')
+
+        form.instance.post_type = 'article'
         author = Author.get_author(user)
         form.instance.author = author
         post = form.save()
@@ -142,7 +174,7 @@ class ArticleCreateView(PermissionRequiredMixin, CreateView):
                     [subscriber.email],
                     html_message=html_message
                 )
-
+        increment_post_count(self.request)
         return super().form_valid(form)
 
 
@@ -179,11 +211,16 @@ def category_news(request, category_id):
     posts = Post.objects.filter(categories=category)
     is_subscribed = category.subscribers.filter(pk=request.user.pk).exists()
     return render(request, 'news/category_news.html',
-                  {'category': category, 'posts': posts, 'subscriber_count': subscriber_count})
+                  {'category': category,
+                   'posts': posts,
+                   'subscriber_count': subscriber_count,
+                   'is_subscribed': is_subscribed})
 
 
 @login_required
 def subscribe_to_category(request, category_id):
-    category = Category.objects.get(pk=category_id)
-    category.subscribers.add(request.user)
+    category = get_object_or_404(Category, pk=category_id)
+    existing_subscriber = Subscriber.objects.filter(user=request.user, category=category).exists()
+    if not existing_subscriber:
+        Subscriber.objects.create(user=request.user, category=category)
     return redirect('category_news', category_id=category_id)

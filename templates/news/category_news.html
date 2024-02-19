@@ -10,39 +10,71 @@
             align-items: center;
             height: 100vh;
             margin: 0;
+            background-image: url('/static/sign/images/back2.jpg');
+            background-size: cover;
         }
 
         .content {
             text-align: center;
-            border: 2px solid #ccc;
+            padding: 20px;
+            border: 2px solid transparent; /* Общая рамка */
+            border-radius: 10px;
+            background-color: rgba(249, 249, 249, 0.8); /* Прозрачный белый цвет */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .frame {
+            border: 2px solid transparent;
             padding: 20px;
             border-radius: 10px;
-            background-color: #f9f9f9;
+            background-color: rgba(249, 249, 249, 0.8); /* Прозрачный белый цвет */
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
         }
 
         .main-link {
+            display: inline-block;
             margin-top: 20px;
-            display: block;
+            padding: 10px 20px;
             text-decoration: none;
             color: blue;
+            border: 2px solid blue;
+            border-radius: 5px;
         }
 
         .main-link:hover {
-            text-decoration: underline;
+            background-color: blue;
+            color: white;
         }
     </style>
 </head>
 <body>
 
     <div class="content">
-        <h1>News by Category: {{ category.name }}</h1>
-        <ul>
-            {% for post in posts %}
-                <li>{{ post.title }}</li>
-            {% endfor %}
-        </ul>
-        <a href="/1" class="main-link">На Главную</a>
+        <div class="frame">
+            <h1>News by Category: {{ category.name }}</h1>
+        </div>
+        
+        <div class="frame">
+            <ul>
+                {% for post in posts %}
+                    <li>{{ post.title }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        
+{% if is_subscribed %}
+    <div class="frame subscribed-message">
+        <p>Вы подписались на эту категорию.</p> 
+    </div>
+{% else %}
+    <div class="frame subscribed-message">
+        <p>Вы не подписаны на эту категорию.</p> 
+    </div>
+{% endif %}
+
+        <a href="/1" class="main-link">На главную</a>
     </div>
 </body>
 </html>
