@@ -3,9 +3,8 @@ from django.urls import path, include
 from allauth.account.views import LoginView, LogoutView, SignupView
 from django.conf.urls import handler403
 from django.views.generic import TemplateView
-from . import views
 
-handler403 = 'news.views.custom_permission_denied'
+#handler403 = 'news.views.custom_permission_denied'
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -18,8 +17,10 @@ urlpatterns = [
     path('accounts/logout/', LogoutView.as_view(), name='account_logout'),
     path('accounts/signup/', SignupView.as_view(), name='account_signup'),
 
-    path('1/', TemplateView.as_view(template_name='flatpages/home.html'), name='home'),
+    path(
+        '1/',
+        TemplateView.as_view(
+            template_name='flatpages/home.html'),
+        name='home'),
 
 ]
-
-

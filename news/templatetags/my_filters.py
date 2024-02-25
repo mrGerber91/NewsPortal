@@ -14,9 +14,13 @@ def censor(value):
 
     # Заменяем цензурированные слова
     for word in censored_words:
-        # Используем регулярное выражение для замены цензурированных слов в любом регистре
-        value = re.sub(re.compile(re.escape(word), re.IGNORECASE), '*' * len(word), value)
+        # Используем регулярное выражение для замены цензурированных слов в
+        # любом регистре
+        value = re.sub(
+            re.compile(
+                re.escape(word),
+                re.IGNORECASE),
+            '*' * len(word),
+            value)
 
     return value
-
-

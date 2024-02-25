@@ -1,40 +1,33 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Post, Author
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.db.models import Q
-from .filters import NewsFilter
 from django import forms
-from .forms import PostForm
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
-from .mixins import AuthCheckMixin
-from django.contrib.auth.mixins import PermissionRequiredMixin
-from django.contrib.auth.models import Group
-from django.http import HttpResponseForbidden, HttpResponse
 from django.views import View
 from django.core.mail import send_mail
-from .models import Category
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
-from .models import Subscriber
-from .models import UserDailyRecord
-from functools import wraps
-from .models import Post
-from django.utils import timezone
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.core.exceptions import PermissionDenied
+from django.contrib.auth.mixins import PermissionRequiredMixin
+from .models import Post, Author, Category, Subscriber, UserDailyRecord
+from .filters import NewsFilter
+from .forms import PostForm
 from .exceptions import DailyPostLimitExceeded
+from .mixins import AuthCheckMixin
+
 
 def daily_post_limit_exceeded(request, exception=None):
     return render(request, 'errors/403_2.html', status=403)
+
 
 @login_required
 def increment_post_count(request):
     user = request.user
     today = timezone.now().date()
-    record, created = UserDailyRecord.objects.get_or_create(user=user, date=today)
+    record, created = UserDailyRecord.objects.get_or_create(
+        user=user, date=today)
     if record.post_count >= 3:
-        raise DailyPostLimitExceeded("Вы уже создали максимальное количество записей за сегодня.")
+        raise DailyPostLimitExceeded(
+            "Вы уже создали максимальное количество записей за сегодня.")
     record.post_count += 1
     record.save()
 
@@ -59,7 +52,8 @@ def post_detail(request, post_id):
     post = get_object_or_404(Post, pk=post_id)
     post = Post.objects.get(pk=post_id)
     category = post.categories.first()
-    return render(request, 'news/post_detail.html', {'post': post, 'category': category})
+    return render(request, 'news/post_detail.html',
+                  {'post': post, 'category': category})
 
 
 def search_news(request):
@@ -101,7 +95,9 @@ class NewsCreateView(PermissionRequiredMixin, CreateView):
         # Проверяем, сколько постов пользователь уже создал сегодня
         user = self.request.user
         today = timezone.now().date()
-        post_count = UserDailyRecord.objects.filter(user=user, date=today).values_list('post_count', flat=True).first()
+        post_count = UserDailyRecord.objects.filter(
+            user=user, date=today).values_list(
+            'post_count', flat=True).first()
         if post_count is not None and post_count >= 3:
             return redirect('daily_post_limit_exceeded')
 
@@ -114,7 +110,8 @@ class NewsCreateView(PermissionRequiredMixin, CreateView):
             post.categories.add(category)
             subscribers = category.subscribers.all()
             for subscriber in subscribers:
-                message_text = f'<h1>{post.title}</h1><p>{post.content[:50]}</p>'
+                message_text = f'<h1>{
+                    post.title}</h1><p>{post.content[:50]}</p>'
                 html_message = (f'<p>Здравствуй, {subscriber.username}. '
                                 f'Новая статья в твоём любимом разделе!</p>{message_text}')
                 send_mail(
@@ -140,6 +137,7 @@ class NewsDeleteView(AuthCheckMixin, DeleteView):
     template_name = 'news/news_confirm_delete.html'
     success_url = reverse_lazy('news_list')
 
+
 class ArticleCreateView(PermissionRequiredMixin, CreateView):
     model = Post
     form_class = PostForm
@@ -151,7 +149,9 @@ class ArticleCreateView(PermissionRequiredMixin, CreateView):
         # Проверяем, сколько постов пользователь уже создал сегодня
         user = self.request.user
         today = timezone.now().date()
-        post_count = UserDailyRecord.objects.filter(user=user, date=today).values_list('post_count', flat=True).first()
+        post_count = UserDailyRecord.objects.filter(
+            user=user, date=today).values_list(
+            'post_count', flat=True).first()
         if post_count is not None and post_count >= 3:
             return redirect('daily_post_limit_exceeded')
 
@@ -164,7 +164,8 @@ class ArticleCreateView(PermissionRequiredMixin, CreateView):
             post.categories.add(category)
             subscribers = category.subscribers.all()
             for subscriber in subscribers:
-                message_text = f'<h1>{post.title}</h1><p>{post.content[:50]}</p>'
+                message_text = f'<h1>{
+                    post.title}</h1><p>{post.content[:50]}</p>'
                 html_message = (f'<p>Здравствуй, {subscriber.username}. '
                                 f'Новая статья в твоём любимом разделе!</p>{message_text}')
                 send_mail(
@@ -220,7 +221,36 @@ def category_news(request, category_id):
 @login_required
 def subscribe_to_category(request, category_id):
     category = get_object_or_404(Category, pk=category_id)
-    existing_subscriber = Subscriber.objects.filter(user=request.user, category=category).exists()
+    existing_subscriber = Subscriber.objects.filter(
+        user=request.user, category=category).exists()
     if not existing_subscriber:
         Subscriber.objects.create(user=request.user, category=category)
     return redirect('category_news', category_id=category_id)
+
+
+def get_new_articles_for_week():
+    end_date = timezone.now().date()
+    start_date = end_date - timezone.timedelta(days=7)
+
+    new_articles = Post.objects.filter(created_at__range=[start_date, end_date])
+
+    return new_articles
+
+def send_weekly_newsletter():
+    new_articles = get_new_articles_for_week()
+
+    subscribers = Subscriber.objects.all()
+
+    for subscriber in subscribers:
+        # Формирование контекста для шаблона письма
+        context = {'subscriber': subscriber, 'new_articles': new_articles}
+        # Загрузка HTML-шаблона письма
+        html_message = render_to_string('news/weekly_newsletter.html', context)
+        # Отправка письма
+        send_mail(
+            'Еженедельные новости',
+            '',
+            settings.EMAIL_HOST_USER,
+            [subscriber.email],
+            html_message=html_message
+        )

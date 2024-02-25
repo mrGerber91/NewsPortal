@@ -16,7 +16,8 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='MyPermissions',
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('id', models.BigAutoField(auto_created=True,
+                 primary_key=True, serialize=False, verbose_name='ID')),
             ],
             options={
                 'permissions': (('add_post', 'Can add post'), ('change_post', 'Can change post')),
@@ -32,14 +33,19 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Subscriber',
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('category', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='news.category')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                ('id', models.BigAutoField(auto_created=True,
+                 primary_key=True, serialize=False, verbose_name='ID')),
+                ('category', models.ForeignKey(
+                    on_delete=django.db.models.deletion.CASCADE, to='news.category')),
+                ('user', models.ForeignKey(
+                    on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
             ],
         ),
         migrations.AddField(
             model_name='category',
             name='subscribers',
-            field=models.ManyToManyField(through='news.Subscriber', to=settings.AUTH_USER_MODEL),
+            field=models.ManyToManyField(
+                through='news.Subscriber',
+                to=settings.AUTH_USER_MODEL),
         ),
     ]

@@ -1,8 +1,9 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.contrib.sites.models import Site
 import django_filters
 from django.utils import timezone
+from django.urls import reverse
+
 
 class UserDailyRecord(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -13,8 +14,11 @@ class UserDailyRecord(models.Model):
         unique_together = ('user', 'date')
 
 # Модель для автора
+
+
 class Author(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)  # Один к одному с моделью пользователя Django
+    # Один к одному с моделью пользователя Django
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     rating = models.IntegerField(default=0)
 
     def __str__(self):
@@ -28,7 +32,9 @@ class Author(models.Model):
     def update_rating(self):
         # Обновление рейтинга автора
         post_rating = sum(post.rating for post in self.post_set.all()) * 3
-        comment_rating = sum(comment.rating for comment in Comment.objects.filter(post__author=self))
+        comment_rating = sum(
+            comment.rating for comment in Comment.objects.filter(
+                post__author=self))
         post_comment_rating = sum(comment.rating
                                   for post in self.post_set.all()
                                   for comment in Comment.objects.filter(post=post))
@@ -52,11 +58,13 @@ class Category(models.Model):
 
 # Модель для поста
 class Post(models.Model):
-    author = models.ForeignKey(Author, on_delete=models.CASCADE)  # Ссылка на автора
+    author = models.ForeignKey(
+        Author, on_delete=models.CASCADE)  # Ссылка на автора
     post_type_choices = [('article', 'Article'), ('news', 'News')]
     post_type = models.CharField(max_length=10, choices=post_type_choices)
     created_at = models.DateTimeField(auto_now_add=True)
-    categories = models.ManyToManyField(Category, through='PostCategory')  # Связь многие ко многим с категориями
+    # Связь многие ко многим с категориями
+    categories = models.ManyToManyField(Category, through='PostCategory')
     title = models.CharField(max_length=255)
     content = models.TextField()
     rating = models.IntegerField(default=0)
@@ -75,6 +83,14 @@ class Post(models.Model):
     def preview(self):
         return f"{self.content[:124]}..."
 
+    @staticmethod
+    def get_new_posts_for_newsletter():
+        one_week_ago = timezone.now() - timezone.timedelta(days=7)
+        return Post.objects.filter(created_at__gte=one_week_ago)
+
+    def get_absolute_url(self):
+        return reverse('post_detail', kwargs={'post_id': self.pk})
+
 
 # Промежуточная модель для связи Post и Category
 class PostCategory(models.Model):
@@ -85,7 +101,8 @@ class PostCategory(models.Model):
 # Модель для комментария
 class Comment(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE)  # Ссылка на пост
-    user = models.ForeignKey(User, on_delete=models.CASCADE)  # Ссылка на пользователя Django
+    # Ссылка на пользователя Django
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     text = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     rating = models.IntegerField(default=0)
@@ -103,7 +120,10 @@ class Comment(models.Model):
 
 
 class NewsFilter(django_filters.FilterSet):
-    date_from = django_filters.DateFilter(field_name='created_at', lookup_expr='gte', label='From (YYYY-MM-DD)')
+    date_from = django_filters.DateFilter(
+        field_name='created_at',
+        lookup_expr='gte',
+        label='From (YYYY-MM-DD)')
 
     class Meta:
         model = Post
@@ -123,6 +143,7 @@ class MyPermissions(models.Model):
 class Subscriber(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
+
 
     def __str__(self):
         return f"{self.user.username} subscribed to {self.category.name}"

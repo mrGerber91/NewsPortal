@@ -12,8 +12,8 @@
   {% if post.categories.all %}
     <p><strong>Categories:</strong>
     <ul>
-      {% for category in post.categories.all %}
-        <li>{{ category.name }}</li>
+      {% for cat in post.categories.all %}
+        <li>{{ cat.name }}</li>
       {% endfor %}
     </ul>
   {% else %}

@@ -1,10 +1,15 @@
+import dotenv
+from dotenv import load_dotenv
 from pathlib import Path
 import os
-from dotenv import load_dotenv
+import boto3
+from botocore.client import Config
+from uuid import uuid4
+
+load_dotenv()
+
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-STATIC_URL = '/static/'
-STATICFILES_DIRS = [BASE_DIR / 'static']
 
 SECRET_KEY = 'django-insecure-o+(7^na(9!jwfi9ch6#8%7zfnu-q+1ao^yjp!cw%+whbc*7c2o'
 
@@ -46,6 +51,10 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
+    'storages',
+    'django_filters',
+    'django_celery_results',
+    'django_crontab',
 
 ]
 
@@ -117,8 +126,8 @@ USE_I18N = True
 
 USE_TZ = True
 
-CSRF_TRUSTED_ORIGINS = ['https://2555649-yo82697.twc1.net']
-CORS_ALLOWED_ORIGINS = ['https://2555649-yo82697.twc1.net']
+CSRF_TRUSTED_ORIGINS = ['https://mrGerber91-NewsPortal-cdaa.twc1.net']
+CORS_ALLOWED_ORIGINS = ['https://mrGerber91-NewsPortal-cdaa.twc1.net']
 
 SITE_ID = 1
 
@@ -135,8 +144,6 @@ ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
 ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 7
 ACCOUNT_FORMS = {'signup': 'sign.models.BasicSignupForm'}
 
-load_dotenv()
-
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.mail.ru'
 EMAIL_PORT = 587  # Или 465
@@ -144,3 +151,28 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'dj.news.ango@mail.ru'
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = 'dj.news.ango@mail.ru'
+
+STATIC_URL = ('http://a43db249-afcba5da-f823-48df-ae33-bb246aacb9e9.s3.timeweb.cloud/')
+
+
+AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
+AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
+AWS_S3_ENDPOINT_URL = os.getenv('AWS_S3_ENDPOINT_URL')
+AWS_S3_REGION_NAME = 'ru-1'
+AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.timeweb.cloud'
+
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+STATICFILES_DIRS = [BASE_DIR / 'static']
+
+BUCKET = os.getenv('AWS_STORAGE_BUCKET_NAME')
+FILENAME = 'sample.txt'
+
+s3 = boto3.client(
+    's3',
+    endpoint_url='https://s3.timeweb.cloud',
+    region_name='ru-1',
+    aws_access_key_id=os.getenv('AWS_ACCESS_KEY_ID'),
+    aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY'),
+)

@@ -9,6 +9,7 @@ from django.db import models
 from django.dispatch import receiver
 from allauth.account.signals import user_signed_up
 
+
 class BaseRegisterForm(UserCreationForm):
     email = forms.EmailField(label="Email")
     first_name = forms.CharField(label="Имя")
@@ -31,6 +32,3 @@ class BasicSignupForm(SignupForm):
         common_group = Group.objects.get(name='common')
         common_group.user_set.add(user)
         return user
-
-
-

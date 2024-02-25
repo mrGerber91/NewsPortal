@@ -4,6 +4,7 @@ import pytz
 
 register = template.Library()
 
+
 @register.simple_tag
 def get_real_time(city='Europe/Moscow'):
     current_time = datetime.now(pytz.timezone(city))
