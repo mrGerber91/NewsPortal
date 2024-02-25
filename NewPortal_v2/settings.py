@@ -8,7 +8,6 @@ from uuid import uuid4
 
 load_dotenv()
 
-
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = 'django-insecure-o+(7^na(9!jwfi9ch6#8%7zfnu-q+1ao^yjp!cw%+whbc*7c2o'
@@ -160,8 +159,8 @@ AWS_S3_REGION_NAME = 'ru-1'
 
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-STATIC_URL = 'https://a43db249-afcba5da-f823-48df-ae33-bb246aacb9e9.s3.timeweb.cloud/'
-
+STATIC_URL = 'https://a43db249-afcba5da-f823-48df-ae33-bb246aacb9e9.s3.timeweb.cloud/static'
+STATIC_ROOT = 'staticfiles'
 
 BUCKET = os.getenv('AWS_STORAGE_BUCKET_NAME')
 FILENAME = 'sample.txt'
