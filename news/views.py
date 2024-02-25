@@ -1,6 +1,9 @@
+from datetime import *
+from django.utils import timezone
 from django.shortcuts import render, get_object_or_404, redirect
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django import forms
+from django.template.loader import render_to_string
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
 from django.views import View
@@ -13,7 +16,6 @@ from .filters import NewsFilter
 from .forms import PostForm
 from .exceptions import DailyPostLimitExceeded
 from .mixins import AuthCheckMixin
-
 
 def daily_post_limit_exceeded(request, exception=None):
     return render(request, 'errors/403_2.html', status=403)
@@ -110,8 +112,7 @@ class NewsCreateView(PermissionRequiredMixin, CreateView):
             post.categories.add(category)
             subscribers = category.subscribers.all()
             for subscriber in subscribers:
-                message_text = f'<h1>{
-                    post.title}</h1><p>{post.content[:50]}</p>'
+                message_text = f'<h1>{post.title}</h1><p>{post.content[:50]}</p>'
                 html_message = (f'<p>Здравствуй, {subscriber.username}. '
                                 f'Новая статья в твоём любимом разделе!</p>{message_text}')
                 send_mail(
