@@ -163,10 +163,9 @@ STATIC_URL = 'https://a43db249-afcba5da-f823-48df-ae33-bb246aacb9e9.s3.timeweb.c
 
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
-    ]
+]
 
-BUCKET = os.getenv('AWS_STORAGE_BUCKET_NAME')
-FILENAME = 'sample.txt'
+bucket_name=os.getenv('AWS_STORAGE_BUCKET_NAME')
 
 s3 = boto3.client(
     's3',
@@ -174,4 +173,5 @@ s3 = boto3.client(
     region_name='ru-1',
     aws_access_key_id=os.getenv('AWS_ACCESS_KEY_ID'),
     aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY'),
+
 )
