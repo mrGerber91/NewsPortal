@@ -165,8 +165,7 @@ class ArticleCreateView(PermissionRequiredMixin, CreateView):
             post.categories.add(category)
             subscribers = category.subscribers.all()
             for subscriber in subscribers:
-                message_text = f'<h1>{
-                    post.title}</h1><p>{post.content[:50]}</p>'
+                message_text = f'<h1>{post.title}</h1><p>{post.content[:50]}</p>'
                 html_message = (f'<p>Здравствуй, {subscriber.username}. '
                                 f'Новая статья в твоём любимом разделе!</p>{message_text}')
                 send_mail(
