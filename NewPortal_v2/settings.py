@@ -165,24 +165,15 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
 
-BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
+bucket_name = os.getenv('AWS_STORAGE_BUCKET_NAME')
 
 s3 = boto3.client(
     's3',
     endpoint_url='https://s3.timeweb.cloud',
     region_name='ru-1',
+    use_ssl=True,
     aws_access_key_id=os.getenv('AWS_ACCESS_KEY_ID'),
     aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY'),
 
 )
 
-s3_resource = boto3.resource(
-    's3',
-    endpoint_url='https://s3.timeweb.cloud',
-    region_name='ru-1',
-    aws_access_key_id=os.getenv('AWS_ACCESS_KEY_ID'),
-    aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY'),
-
-)
-
-bucket = s3_resource.Bucket(BUCKET_NAME)
