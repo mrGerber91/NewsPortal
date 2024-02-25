@@ -126,8 +126,8 @@ USE_I18N = True
 
 USE_TZ = True
 
-CSRF_TRUSTED_ORIGINS = ['https://mrGerber91-NewsPortal-cdaa.twc1.net']
-CORS_ALLOWED_ORIGINS = ['https://mrGerber91-NewsPortal-cdaa.twc1.net']
+CSRF_TRUSTED_ORIGINS = ['https://mrgerber91-newsportal-c11d.twc1.net']
+CORS_ALLOWED_ORIGINS = ['https://mrgerber91-newsportal-c11d.twc1.net']
 
 SITE_ID = 1
 
