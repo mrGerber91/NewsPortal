@@ -152,9 +152,6 @@ EMAIL_HOST_USER = 'dj.news.ango@mail.ru'
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = 'dj.news.ango@mail.ru'
 
-STATIC_URL = ('http://a43db249-afcba5da-f823-48df-ae33-bb246aacb9e9.s3.timeweb.cloud/')
-
-
 AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
 AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
 AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
@@ -165,7 +162,8 @@ AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.timeweb.cloud'
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 STATICFILES_DIRS = [BASE_DIR / 'static']
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_ROOT = 'http://a43db249-afcba5da-f823-48df-ae33-bb246aacb9e9.s3.timeweb.cloud/staticfiles/'
+STATIC_URL = ('http://a43db249-afcba5da-f823-48df-ae33-bb246aacb9e9.s3.timeweb.cloud/')
 
 BUCKET = os.getenv('AWS_STORAGE_BUCKET_NAME')
 FILENAME = 'sample.txt'
