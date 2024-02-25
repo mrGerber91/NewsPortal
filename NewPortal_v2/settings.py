@@ -162,7 +162,7 @@ AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.timeweb.cloud'
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 STATICFILES_DIRS = [BASE_DIR / 'static']
-STATIC_ROOT = 'http://a43db249-afcba5da-f823-48df-ae33-bb246aacb9e9.s3.timeweb.cloud/staticfiles/'
+STATIC_ROOT = ('http://a43db249-afcba5da-f823-48df-ae33-bb246aacb9e9.s3.timeweb.cloud/')
 STATIC_URL = ('http://a43db249-afcba5da-f823-48df-ae33-bb246aacb9e9.s3.timeweb.cloud/')
 
 BUCKET = os.getenv('AWS_STORAGE_BUCKET_NAME')
