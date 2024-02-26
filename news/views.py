@@ -16,6 +16,7 @@ from .filters import NewsFilter
 from .forms import PostForm
 from .exceptions import DailyPostLimitExceeded
 from .mixins import AuthCheckMixin
+from .models import Visitor
 
 def daily_post_limit_exceeded(request, exception=None):
     return render(request, 'errors/403_2.html', status=403)
@@ -254,3 +255,7 @@ def send_weekly_newsletter():
             [subscriber.email],
             html_message=html_message
         )
+
+def home(request):
+    visitor_count = Visitor.objects.first().count
+    return render(request, 'default.html', {'visitor_count': visitor_count})

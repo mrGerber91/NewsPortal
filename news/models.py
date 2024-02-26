@@ -147,3 +147,7 @@ class Subscriber(models.Model):
 
     def __str__(self):
         return f"{self.user.username} subscribed to {self.category.name}"
+
+
+class Visitor(models.Model):
+    count = models.IntegerField(default=0)
