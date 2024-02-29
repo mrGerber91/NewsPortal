@@ -3,7 +3,8 @@ from django.contrib.auth.models import User
 import django_filters
 from django.utils import timezone
 from django.urls import reverse
-
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 class UserDailyRecord(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -89,7 +90,8 @@ class Post(models.Model):
         return Post.objects.filter(created_at__gte=one_week_ago)
 
     def get_absolute_url(self):
-        return reverse('post_detail', kwargs={'post_id': self.pk})
+        base_url = "http://127.0.0.1:8000/"
+        return base_url + reverse('post_detail', kwargs={'post_id': self.pk})
 
 
 # Промежуточная модель для связи Post и Category
@@ -144,10 +146,19 @@ class Subscriber(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
 
-
     def __str__(self):
         return f"{self.user.username} subscribed to {self.category.name}"
 
 
 class Visitor(models.Model):
     count = models.IntegerField(default=0)
+
+    @receiver(post_save, sender=None)
+    def increment_visitor_count(sender, instance, created, **kwargs):
+        if created:
+            visitor = Visitor.objects.first()
+            if visitor:
+                visitor.count += 1
+                visitor.save()
+            else:
+                Visitor.objects.create(count=1)

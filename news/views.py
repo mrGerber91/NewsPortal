@@ -17,6 +17,7 @@ from .forms import PostForm
 from .exceptions import DailyPostLimitExceeded
 from .mixins import AuthCheckMixin
 from .models import Visitor
+from django.http import HttpResponse
 
 def daily_post_limit_exceeded(request, exception=None):
     return render(request, 'errors/403_2.html', status=403)
@@ -55,8 +56,7 @@ def post_detail(request, post_id):
     post = get_object_or_404(Post, pk=post_id)
     post = Post.objects.get(pk=post_id)
     category = post.categories.first()
-    return render(request, 'news/post_detail.html',
-                  {'post': post, 'category': category})
+    return render(request, 'news/post_detail.html', {'post': post, 'category': category})
 
 
 def search_news(request):
@@ -95,9 +95,12 @@ class NewsCreateView(PermissionRequiredMixin, CreateView):
     permission_required = 'news.add_post'
 
     def form_valid(self, form):
+        from .tasks import send_notification_to_subscribers
+        form.instance.author = self.request.user.author
         # Проверяем, сколько постов пользователь уже создал сегодня
         user = self.request.user
         today = timezone.now().date()
+        post = form.save()
         post_count = UserDailyRecord.objects.filter(
             user=user, date=today).values_list(
             'post_count', flat=True).first()
@@ -123,6 +126,7 @@ class NewsCreateView(PermissionRequiredMixin, CreateView):
                     [subscriber.email],
                     html_message=html_message
                 )
+            send_notification_to_subscribers.delay(post.pk)
         increment_post_count(self.request)
         return super().form_valid(form)
 
@@ -148,9 +152,12 @@ class ArticleCreateView(PermissionRequiredMixin, CreateView):
     permission_required = 'news.add_post'
 
     def form_valid(self, form):
+        from .tasks import send_notification_to_subscribers
+        form.instance.author = self.request.user.author
         # Проверяем, сколько постов пользователь уже создал сегодня
         user = self.request.user
         today = timezone.now().date()
+        post = form.save()
         post_count = UserDailyRecord.objects.filter(
             user=user, date=today).values_list(
             'post_count', flat=True).first()
@@ -176,6 +183,7 @@ class ArticleCreateView(PermissionRequiredMixin, CreateView):
                     [subscriber.email],
                     html_message=html_message
                 )
+            send_notification_to_subscribers.delay(post.pk)
         increment_post_count(self.request)
         return super().form_valid(form)
 
@@ -232,30 +240,15 @@ def subscribe_to_category(request, category_id):
 def get_new_articles_for_week():
     end_date = timezone.now().date()
     start_date = end_date - timezone.timedelta(days=7)
-
     new_articles = Post.objects.filter(created_at__range=[start_date, end_date])
-
     return new_articles
 
-def send_weekly_newsletter():
-    new_articles = get_new_articles_for_week()
-
-    subscribers = Subscriber.objects.all()
-
-    for subscriber in subscribers:
-        # Формирование контекста для шаблона письма
-        context = {'subscriber': subscriber, 'new_articles': new_articles}
-        # Загрузка HTML-шаблона письма
-        html_message = render_to_string('news/weekly_newsletter.html', context)
-        # Отправка письма
-        send_mail(
-            'Еженедельные новости',
-            '',
-            settings.EMAIL_HOST_USER,
-            [subscriber.email],
-            html_message=html_message
-        )
+def weekly_newsletter(request):
+    new_posts = Post.get_new_posts_for_newsletter()
+    context = {'new_posts': new_posts, 'request': request}
+    return render(request, 'weekly_newsletter.html', context)
 
 def home(request):
     visitor_count = Visitor.objects.first().count
-    return render(request, 'default.html', {'visitor_count': visitor_count})
+    return render(request, 'home.html', {'visitor_count': visitor_count})
+

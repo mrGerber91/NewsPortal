@@ -11,7 +11,7 @@ load_dotenv()
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'NewPortal_v2.settings')
 django.setup()
 
-from news.utils import send_weekly_newsletter
+from news.tasks import send_weekly_newsletter
 
 # Вызываем функцию send_weekly_newsletter() для выполнения рассылки прямо сейчас
 send_weekly_newsletter()

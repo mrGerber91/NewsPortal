@@ -4,6 +4,8 @@ from .views import NewsCreateView, NewsUpdateView, NewsDeleteView
 from .views import ArticleCreateView, ArticleUpdateView, ArticleDeleteView
 from . import views
 
+
+
 handler403 = 'news.views.daily_post_limit_exceeded'
 
 urlpatterns = [
@@ -45,6 +47,9 @@ urlpatterns = [
     path('daily_post_limit_exceeded/',
          views.daily_post_limit_exceeded,
          name='daily_post_limit_exceeded'),
+
+    #Celery
+
 
 
 ]

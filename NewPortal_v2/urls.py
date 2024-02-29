@@ -4,7 +4,7 @@ from allauth.account.views import LoginView, LogoutView, SignupView
 from django.conf.urls import handler403
 from django.views.generic import TemplateView
 
-# handler403 = 'news.views.custom_permission_denied'
+handler403 = 'news.views.custom_permission_denied'
 
 urlpatterns = [
     path('admin/', admin.site.urls),

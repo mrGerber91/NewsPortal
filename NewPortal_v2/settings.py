@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'django_filters',
     'django_celery_results',
     'django_crontab',
+    'django_apscheduler',
 
 ]
 
@@ -120,10 +121,11 @@ AUTH_PASSWORD_VALIDATORS = [
 LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'UTC'
+USE_TZ = True
 
 USE_I18N = True
 
-USE_TZ = True
+
 
 CSRF_TRUSTED_ORIGINS = ['https://mrgerber91-newsportal-c11d.twc1.net']
 CORS_ALLOWED_ORIGINS = ['https://mrgerber91-newsportal-c11d.twc1.net']
@@ -176,4 +178,16 @@ s3 = boto3.client(
     aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY'),
 
 )
+
+APSCHEDULER_DATETIME_FORMAT = "N j, Y, f:s a"
+APSCHEDULER_RUN_NOW_TIMEOUT = 25
+
+CELERY_BROKER_URL = ('redis://:75TtRC7Pn9pUKpAbFRkrCl9PBuQbQmVV@redis-13967.c325.us-east-1-4.ec2.cloud.redislabs.com'
+                     ':13967')
+CELERY_RESULT_BACKEND = ('redis://:75TtRC7Pn9pUKpAbFRkrCl9PBuQbQmVV@redis-13967.c325.us-east-1-4.ec2.cloud.redislabs'
+                         '.com:13967')
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+
 
