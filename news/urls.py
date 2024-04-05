@@ -3,15 +3,15 @@ from .views import news_list, post_detail, search_news, subscribe_to_category
 from .views import NewsCreateView, NewsUpdateView, NewsDeleteView
 from .views import ArticleCreateView, ArticleUpdateView, ArticleDeleteView
 from . import views
-
-
+from django.views.decorators.cache import cache_page
 
 handler403 = 'news.views.daily_post_limit_exceeded'
 
 urlpatterns = [
-    path('news/', news_list, name='news_list'),
+    path('news/', cache_page(60 * 5)(news_list), name='news_list'),
     path('search/', search_news, name='search_news'),
-    path('news/post/<int:post_id>/', post_detail, name='post_detail'),
+    path('news/post/<int:post_id>/', cache_page(60 * 5)(post_detail), name='post_detail'),
+
 
     # Страницы для новостей
     path('news/create/', NewsCreateView.as_view(), name='create_news'),
@@ -48,8 +48,6 @@ urlpatterns = [
          views.daily_post_limit_exceeded,
          name='daily_post_limit_exceeded'),
 
-    #Celery
-
-
+    # Celery
 
 ]

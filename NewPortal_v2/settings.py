@@ -5,10 +5,21 @@ import os
 import boto3
 from botocore.client import Config
 from uuid import uuid4
+import sys
 
 load_dotenv()
 
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.mail.ru'
+EMAIL_PORT = 587  # Или 465
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'dj.news.ango@mail.ru'
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL = 'dj.news.ango@mail.ru'
+ADMINS = [('Mikle', 'lalkakapalka3@gmail.com')]
+
 BASE_DIR = Path(__file__).resolve().parent.parent
+LOGS_DIR = os.path.join(BASE_DIR, 'logs')
 
 SECRET_KEY = 'django-insecure-o+(7^na(9!jwfi9ch6#8%7zfnu-q+1ao^yjp!cw%+whbc*7c2o'
 
@@ -20,15 +31,98 @@ DJANGO_ALLOWED_HOSTS = ['*']
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
+    'formatters': {
+        'custom': {
+            '()': 'log.CustomFormatter',
+            'format': '{asctime} {levelname} {module} {message}',
+            'style': '{',
         },
     },
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'custom',
+            'filters': ['debug_only'],
+        },
+        'general_file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(LOGS_DIR, 'general.log'),
+            'formatter': 'custom',
+            'filters': ['debug_off'],
+        },
+        'errors_file': {
+            'level': 'ERROR',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(LOGS_DIR, 'errors.log'),
+            'formatter': 'custom',
+            'filters': ['errors_only'],
+        },
+        'security_file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(LOGS_DIR, 'security.log'),
+            'formatter': 'custom',
+            'filters': ['security_only'],
+        },
+        'mail_admins': {
+            'level': 'ERROR',
+            'class': 'django.utils.log.AdminEmailHandler',
+            'include_html': False,
+            'formatter': 'custom',
+            'filters': ['debug_off', 'mail_admins_only'],
+        },
+    },
+    'filters': {
+        'debug_only': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        },
+        'debug_off': {
+            '()': 'django.utils.log.RequireDebugFalse',
+        },
+        'errors_only': {
+            '()': 'log.ErrorOnlyFilter',
+        },
+        'security_only': {
+            '()': 'django.utils.log.CallbackFilter',
+            'callback': lambda record: record.name == 'django.security',
+        },
+        'mail_admins_only': {
+            'level': 'ERROR',
+        },
+    },
+
     'loggers': {
-        'django.db.backends': {
+        'django': {
             'handlers': ['console'],
             'level': 'DEBUG',
+            'propagate': True,
+        },
+        'django.request': {
+            'handlers': ['errors_file', 'mail_admins'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+        'django.server': {
+            'handlers': ['errors_file', 'mail_admins'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+        'django.template': {
+            'handlers': ['errors_file'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+        'django.db.backends': {
+            'handlers': ['errors_file'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+        'django.security': {
+            'handlers': ['security_file'],
+            'level': 'INFO',
+            'propagate': False,
         },
     },
 }
@@ -125,8 +219,6 @@ USE_TZ = True
 
 USE_I18N = True
 
-
-
 CSRF_TRUSTED_ORIGINS = ['https://mrgerber91-newsportal-c11d.twc1.net']
 CORS_ALLOWED_ORIGINS = ['https://mrgerber91-newsportal-c11d.twc1.net']
 
@@ -144,14 +236,6 @@ ACCOUNT_AUTHENTICATION_METHOD = 'email'
 ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
 ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 7
 ACCOUNT_FORMS = {'signup': 'sign.models.BasicSignupForm'}
-
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.mail.ru'
-EMAIL_PORT = 587  # Или 465
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'dj.news.ango@mail.ru'
-EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
-DEFAULT_FROM_EMAIL = 'dj.news.ango@mail.ru'
 
 AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
 AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
@@ -194,5 +278,10 @@ CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
         'LOCATION': os.path.join(BASE_DIR, 'cache_files'),
-    }
+
+    },
+    'database': {
+        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        'LOCATION': 'my_cache_table',
+    },
 }

@@ -1,3 +1,4 @@
+{% load cache %}
 {% load static %}
 {% load custom_tags %}
 
@@ -199,14 +200,16 @@ a:hover {
 </style>
 <body>
     <header>
+        {% cache 600 header %}
         <h1>
             {% block header %}Портал Новостей{% endblock %}
             <div id="real-time">{{ real_time|date:"F j, Y H:i:s" }}</div>
         </h1>
-
+        {% endcache %}
     </header>
 
 <nav>
+    {% cache 600 nav %}
         <ul>
             <li><a href="{% url 'home' %}">Главная</a></li>
             <li><a href="{% url 'news_list' %}">Новости</a></li>
@@ -221,6 +224,7 @@ a:hover {
                 {% endif %}
             </li>
         </ul>
+    {% endcache %}
         <div class="navbar-right">
 
             {% if user.is_authenticated %}
@@ -244,6 +248,7 @@ a:hover {
                 <a href="{% url 'account_signup' %}">Зарегистрироваться</a>
             {% endif %}
         </div>
+    
     </nav>
 
     <main>
@@ -251,8 +256,10 @@ a:hover {
     </main>
 
    <footer>
+       {% cache 600 footer %}
     <p>© 2024 Проект создал: <a href="https://github.com/mrGerber91" target="_blank">mrGerber91</a></p>
        <p>Количество посетителей: {{ visitor_count }}</p>
+       {% endcache %}
     </footer>
 
 <script>

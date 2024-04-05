@@ -18,6 +18,7 @@ from .exceptions import DailyPostLimitExceeded
 from .mixins import AuthCheckMixin
 from .models import Visitor
 from django.http import HttpResponse
+from django.core.cache import cache
 
 def daily_post_limit_exceeded(request, exception=None):
     return render(request, 'errors/403_2.html', status=403)
@@ -52,9 +53,16 @@ def news_list(request):
 
 
 def post_detail(request, post_id):
-    # Получаем объект поста или возвращаем ошибку 404, если пост не найден
-    post = get_object_or_404(Post, pk=post_id)
-    post = Post.objects.get(pk=post_id)
+    # Проверяем, есть ли объект поста в кэше
+    cache_key = f'post_{post_id}'
+    post = cache.get(cache_key)
+
+    # Если поста нет в кэше, получаем его из базы данных
+    if not post:
+        post = get_object_or_404(Post, pk=post_id)
+        # Сохраняем пост в кэше
+        cache.set(cache_key, post)
+
     category = post.categories.first()
     return render(request, 'news/post_detail.html', {'post': post, 'category': category})
 

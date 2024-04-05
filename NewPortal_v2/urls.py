@@ -22,5 +22,4 @@ urlpatterns = [
         TemplateView.as_view(
             template_name='flatpages/home.html'),
         name='home'),
-
 ]

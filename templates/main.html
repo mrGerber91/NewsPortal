@@ -1,5 +1,6 @@
 {% load static %}
 {% load socialaccount %}
+{% load cache %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -57,9 +58,12 @@
         }
     </style>
 </head>
+    {% cache 600 body %}
 <body style="background-image: 
 url('http://a43db249-afcba5da-f823-48df-ae33-bb246aacb9e9.s3.timeweb.cloud/sign/images/back2.jpg'); 
 background-size: cover;">
+    {% endcache %}
+    {% cache 600 div %}
     <div class="container">
         <div>
             <h1><a href="{% url 'home' %}">Главная Страница</a></h1>
@@ -69,8 +73,10 @@ background-size: cover;">
                      style="width: 50px; height: 50px; vertical-align: middle; margin-right: 10px;">
             </a>
         </div>
+   {% endcache %}
         {% block content %}
         {% endblock %}
     </div>
+    
 </body>
 </html>

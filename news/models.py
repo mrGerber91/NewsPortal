@@ -5,6 +5,8 @@ from django.utils import timezone
 from django.urls import reverse
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.core.cache import cache
+
 
 class UserDailyRecord(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -92,6 +94,10 @@ class Post(models.Model):
     def get_absolute_url(self):
         base_url = "http://127.0.0.1:8000/"
         return base_url + reverse('post_detail', kwargs={'post_id': self.pk})
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        cache.delete(f'post_{self.pk}')
 
 
 # Промежуточная модель для связи Post и Category
